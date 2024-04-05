@@ -102,11 +102,13 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 
 
 	@Override
-	public void delete(MovieVO movie) {
+	public void delete(Integer movieId) {
 
 		String sql = "DELETE FROM movie where movieId = ?;";
 		try (Connection connection = DriverManager.getConnection(url, userid, password);
 				PreparedStatement ps = connection.prepareStatement(sql)) {
+			ps.setInt(1, movieId);
+         ps.executeUpdate();		
 
 		} catch (Exception e) {
 			e.printStackTrace();

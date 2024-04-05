@@ -10,8 +10,8 @@ import java.util.Map;
 public interface movieDAO_Interface{
           public void insert(MovieVO movie);
           public void update(MovieVO movie);
-          public void delete(MovieVO movie);
-          public MovieVO findByPrimaryKey(Integer movie_id);
+          public void delete(Integer movieId);
+          public MovieVO findByPrimaryKey(Integer movieId);
           public List<MovieVO> getAll();
           
           

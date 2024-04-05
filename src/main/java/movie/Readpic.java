@@ -39,24 +39,24 @@ public class Readpic extends HttpServlet {
        
             String sql = "SELECT pic FROM movie WHERE movieId = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, movieId);
+            ps.setString(1, movieId);  //取得網址列上的參數  上面string 
             
            
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 
-                InputStream inputStream = rs.getBinaryStream("pic");
+                InputStream inputStream = rs.getBinaryStream("pic");  //取得二元資料流
                 
               
                 int bytesRead;
                 byte[] buffer = new byte[4096];
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
-                    res.getOutputStream().write(buffer, 0, bytesRead);
+                    res.getOutputStream().write(buffer, 0, bytesRead);  // 用RESPONSE 取得輸出資料流然後寫入網頁
                 }
                 inputStream.close();
             } else {
                
-            	InputStream in=getServletContext().getResourceAsStream("/images/null.jpg");
+            	InputStream in=getServletContext().getResourceAsStream("/images/null.jpg");   //如果無參數送出要得到的回應照片
 				byte[]b =new byte[in.available()];
 				in.read(b);
 				res.getOutputStream().write(b);
