@@ -2,6 +2,7 @@ package movie;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
 public class MovieVO implements java.io.Serializable{ 
 
@@ -31,6 +32,9 @@ public MovieVO(Integer movieId,String movieName,Integer runtime,String genre,Loc
 	this.pic=pic;
 			
 }
+
+
+
 
 
 
@@ -102,16 +106,30 @@ public byte[] getPic() {
 }
 
 
+
 public void setPic(byte[] pic) {
 	this.pic = pic;
 }
 
 
+
+
+
+
+
 public String toString() {
 	String text = String.format(
-			"movieId: %s, movie name: %s, release date: %s,runtime:%s",
-			movieId, movieName,releaseDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),runtime);
+			"movieId: %s, movie name: %s, release date: %s,runtime:%s,genre:%s",
+			movieId, movieName,releaseDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),runtime,genre);
 		return text;
+}
+public String getPicBase64() {
+    if (pic != null) {
+        return Base64.getEncoder().encodeToString(pic);
+    } 
+    else {
+        return ""; // 或者其他默认值，视情况而定
+    }
 }
 
 

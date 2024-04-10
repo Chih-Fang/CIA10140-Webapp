@@ -28,7 +28,7 @@ public class Readpic extends HttpServlet {
         res.setContentType("image/jpeg"); // Set the content type to image/jpeg
         try {
             // Retrieve movieId parameter from the request
-            String movieId = req.getParameter("movieId");
+            String Id = req.getParameter("movieId");
             
             // Establish a connection to the MySQL database
             String url = "jdbc:mysql://localhost:3306/cinema?serverTimezone=Asia/Taipei";
@@ -39,7 +39,7 @@ public class Readpic extends HttpServlet {
        
             String sql = "SELECT pic FROM movie WHERE movieId = ?";
             PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setString(1, movieId);  //取得網址列上的參數  上面string 
+            ps.setString(1, Id);  //取得網址列上的參數  上面string 
             
            
             ResultSet rs = ps.executeQuery();
@@ -49,7 +49,7 @@ public class Readpic extends HttpServlet {
                 
               
                 int bytesRead;
-                byte[] buffer = new byte[4096];
+                byte[] buffer = new byte[4096]; //也可以new byte[inputstream.availab()];
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     res.getOutputStream().write(buffer, 0, bytesRead);  // 用RESPONSE 取得輸出資料流然後寫入網頁
                 }
@@ -66,6 +66,11 @@ public class Readpic extends HttpServlet {
             e.printStackTrace();
             res.getWriter().write("錯誤發生");
         }
+        
+        
+        
+        
+        
     }
 
 }

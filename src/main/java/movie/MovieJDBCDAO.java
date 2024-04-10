@@ -2,6 +2,7 @@ package movie;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -35,6 +36,7 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 			ps.setString(7, movie.getMovieStatus());
 			ps.setBytes(8, movie.getPic());
 			ps.executeUpdate();
+			
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -44,7 +46,7 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 
 	@Override
 	public void update(MovieVO movie) {
-		String sql = "UPDATE movie set movieName=?,runtime=?, genre=?,releaseDate=?,language=?, rating=?,moviesStatus=?,pic=? where movieId = ?";
+		String sql = "UPDATE movie set movieName=?,runtime=?, genre=?,releaseDate=?,language=?, rating=?,movieStatus=? where movieId = ?";
 		try (Connection connection = DriverManager.getConnection(url, userid, password);
 				PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -55,11 +57,12 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 			ps.setString(5, movie.getLanguage());
 			ps.setString(6, movie.getRating());
 			ps.setString(7, movie.getMovieStatus());
-
 			ps.setInt(8, movie.getMovieId());
-			ps.setBytes(9, movie.getPic());
+//			ps.setBytes(9, movie.getPic());
 
 			ps.executeUpdate();
+			
+			System.out.println("woooo");
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -86,18 +89,39 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 				String language = rs.getString(6);
 				String rating = rs.getString(7);
 				String movieStatus = rs.getString(8);
-				byte[] pic = rs.getBytes(9);
+				byte[] pic=rs.getBytes(9);
+//				byte[] pic = null; //預設一個空的 ;
+//		        InputStream in = rs.getBinaryStream(9);
+//		        if (in != null) {
+//		            pic = new byte[in.available()];
+//		            in.read(pic);
+//		            in.close();
+//		        }
+				
 				MovieVO movie = new MovieVO(movieId, movieName, runtime, genre, releaseDate, language, rating,
-						movieStatus, pic);
+						movieStatus,pic);
+				
+				
+				//第二種寫法
+//				MovieVO movie=new MovieVO();
+//				movie.setMovieId(rs.getInt("movieId"));
+//				movie.setMovieName(rs.getString("movieName"));
+//				LocalDate releaseDate = rs.getDate("releaseDate").toLocalDate();
+//				movie.setReleaseDate(releaseDate);
+//				movie.setRuntime(rs.getInt("runtime"));
 				movies.add(movie);
+				
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.out.println(movies);
+		
 		return movies;
 	}
+	
+
 
 
 
@@ -118,13 +142,13 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 
 	@Override
 	public MovieVO findByPrimaryKey(Integer movieId) {
-
-		String sql = "Select movieId ,movieName,releaseDate,runtime FROM movie where movieId = ?;";
+		MovieVO movie=null;
+		String sql = "Select movieId ,movieName,runtime,releaseDate,genre,language,rating, movieStatus,pic FROM movie where movieId = ?;";
 		try (Connection connection = DriverManager.getConnection(url, userid, password);
 				PreparedStatement ps = connection.prepareStatement(sql)) {
 			ResultSet rs = null;
 
-			MovieVO movie = new MovieVO();
+			 movie = new MovieVO();
 
 			ps.setInt(1, movieId);
 			rs = ps.executeQuery();
@@ -135,17 +159,145 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 				LocalDate releaseDate = rs.getDate("releaseDate").toLocalDate();
 				movie.setReleaseDate(releaseDate);
 				movie.setRuntime(rs.getInt("runtime"));
+				movie.setGenre(rs.getString("genre"));
+				movie.setLanguage(rs.getNString("language"));
+				movie.setMovieStatus(rs.getString("movieStatus"));
+				movie.setRating(rs.getString("Rating"));
+//				movie.setPic(rs.getBytes("pic"));
+                byte[] pic = null; 
+		        
+		        InputStream in = rs.getBinaryStream(9);
+		        if (in != null) {
+		            pic = new byte[in.available()];
+		            in.read(pic);
+		           System.out.println("hahahahahaahahah"); 
+		            in.close();
+		        }
+		        movie.setPic(pic);
+		        
 			}
 			System.out.println(movie);
 	
 
 		} catch (Exception e) {
 			e.printStackTrace();
-//			System.out.println("====");
+//			
 		}
 
-	  return null;
+	  return movie;
 	}
+	
+	@Override
+	 public List<MovieVO> onAndOff(String movieStatus) {
+		List<MovieVO> movies = new ArrayList<>();
+		String sql = "Select movieId ,movieName,runtime,releaseDate,genre,language,rating, movieStatus,pic FROM movie where movieStatus = ?;";
+		try (Connection connection = DriverManager.getConnection(url, userid, password);
+				PreparedStatement ps = connection.prepareStatement(sql)) {
+		
+			ps.setString(1, movieStatus);
+			ResultSet rs = null;
+			rs = ps.executeQuery();
+
+		
+		
+			while (rs.next()) {
+				
+				MovieVO movie=new MovieVO();
+				movie.setMovieId(rs.getInt("movieId"));
+				movie.setMovieName(rs.getString("movieName"));
+				
+				LocalDate releaseDate = rs.getDate("releaseDate").toLocalDate();
+				movie.setReleaseDate(releaseDate);
+				movie.setRuntime(rs.getInt("runtime"));
+				movie.setGenre(rs.getString("genre"));
+				movie.setLanguage(rs.getNString("language"));
+				movie.setMovieStatus(rs.getString("movieStatus"));
+				movie.setRating(rs.getString("rating"));
+				
+                   byte[] pic = null; 
+		        
+		        InputStream in = rs.getBinaryStream("pic");
+		        if (in != null) {
+		            pic = new byte[in.available()];
+		            in.read(pic);
+		           System.out.println("hahahahahaahahah"); 
+		            in.close();
+		        }
+		        movie.setPic(pic);
+				movies.add(movie);
+				
+			
+				System.out.println(movie);
+			}
+			
+	
+
+		} catch (Exception e) {
+			e.printStackTrace();
+//			
+		}
+
+	  return movies;
+		
+		
+	}
+	
+
+	@Override
+	 public List<MovieVO> keywords(String movieName){
+		
+		List<MovieVO> movies = new ArrayList<>();
+		String sql = "SELECT movieId, movieName, runtime, releaseDate, genre, language, rating, movieStatus,pic FROM movie WHERE movieName LIKE ?;";
+				
+		try (Connection connection = DriverManager.getConnection(url, userid, password);
+				PreparedStatement ps = connection.prepareStatement(sql)) {
+		
+			ps.setString(1, "%" + movieName + "%");
+			ResultSet rs = null;
+			rs = ps.executeQuery();
+
+		
+		
+			while (rs.next()) {
+				
+				MovieVO movie=new MovieVO();
+				movie.setMovieId(rs.getInt("movieId"));
+				movie.setMovieName(rs.getString("movieName"));
+				
+				LocalDate releaseDate = rs.getDate("releaseDate").toLocalDate();
+				movie.setReleaseDate(releaseDate);
+				movie.setRuntime(rs.getInt("runtime"));
+				movie.setGenre(rs.getString("genre"));
+				movie.setLanguage(rs.getNString("language"));
+				movie.setMovieStatus(rs.getString("movieStatus"));
+				movie.setRating(rs.getString("rating"));
+				
+                   byte[] pic = null; 
+		        
+		        InputStream in = rs.getBinaryStream("pic");
+		        if (in != null) {
+		            pic = new byte[in.available()];
+		            in.read(pic);
+		           System.out.println("hahahahahaahahah"); 
+		            in.close();
+		        }
+		        movie.setPic(pic);
+				movies.add(movie);
+			
+			}
+			
+	
+
+		} catch (Exception e) {
+			e.printStackTrace();
+//			
+		}
+
+	  return movies;
+		
+		 
+		 
+	 }
 	
 	
 	public static byte[] getPictureByteArray(String path) throws IOException {
@@ -156,11 +308,14 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 		return buffer;
 	}
 	
+	
+	
+	
 	public static void main(String[] args) {
-		
-		//新增一筆資料
-		MovieJDBCDAO dao = new MovieJDBCDAO();
 //		
+//		//新增一筆資料
+		MovieJDBCDAO dao = new MovieJDBCDAO();
+////		
 //		
 		MovieVO movie1=new MovieVO();
 		movie1.setMovieName("刺激1995");
@@ -176,18 +331,22 @@ public class MovieJDBCDAO implements movieDAO_Interface {
 			 movie1.setPic(pic);
 				
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		
 		dao.insert(movie1);
 		System.out.println("新增成功");
-//     
-		dao.findByPrimaryKey(1);
-		System.out.println("=====================");
+////     
+//		dao.findByPrimaryKey(1);
+//		System.out.println("=====================");
+////		
+//		dao.getAll();
 //		
-		dao.getAll();
-//		
+//		dao.delete(1);
+		
+		dao.onAndOff("即將上映");
+////		
 
 	}
 

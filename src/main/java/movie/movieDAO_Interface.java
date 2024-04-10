@@ -13,6 +13,8 @@ public interface movieDAO_Interface{
           public void delete(Integer movieId);
           public MovieVO findByPrimaryKey(Integer movieId);
           public List<MovieVO> getAll();
+          public List<MovieVO> onAndOff(String movieStatus);
+          public List<MovieVO> keywords(String movieName);
           
           
      
